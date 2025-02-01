@@ -174,6 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 145039094}
+  dragSprite: {fileID: 0}
 --- !u!114 &55125864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,6 +326,7 @@ GameObject:
   - component: {fileID: 208247658}
   - component: {fileID: 208247660}
   - component: {fileID: 208247659}
+  - component: {fileID: 208247661}
   m_Layer: 5
   m_Name: TableSpace
   m_TagString: Untagged
@@ -389,6 +391,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 208247657}
   m_CullTransparentMesh: 1
+--- !u!114 &208247661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 208247657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d72a6bb869bb41a5d6112ad43b265, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  paperPrefab: {fileID: 7525318221131954721, guid: 8d3733bf85b8ee142a53b7fac18ff8ac, type: 3}
+  paperFigures:
+  - {fileID: 3731205288657138566, guid: 61f7bbc7dea724d4180d13dc3b927409, type: 3}
 --- !u!1 &336811304
 GameObject:
   m_ObjectHideFlags: 0
@@ -836,9 +853,10 @@ GameObject:
   - component: {fileID: 1757737557}
   - component: {fileID: 1757737556}
   - component: {fileID: 1757737558}
+  - component: {fileID: 1757737559}
   m_Layer: 5
-  m_Name: Paper
-  m_TagString: Untagged
+  m_Name: PaperStack
+  m_TagString: PaperStack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -913,6 +931,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 145039094}
+  dragSprite: {fileID: 0}
+--- !u!225 &1757737559
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757737554}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1928212115
 GameObject:
   m_ObjectHideFlags: 0
@@ -1002,6 +1033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 145039094}
+  dragSprite: {fileID: 0}
 --- !u!1 &2130491699
 GameObject:
   m_ObjectHideFlags: 0
