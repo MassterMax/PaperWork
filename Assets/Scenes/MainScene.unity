@@ -406,6 +406,7 @@ MonoBehaviour:
   paperPrefab: {fileID: 7525318221131954721, guid: 8d3733bf85b8ee142a53b7fac18ff8ac, type: 3}
   paperFigures:
   - {fileID: 3731205288657138566, guid: 61f7bbc7dea724d4180d13dc3b927409, type: 3}
+  - {fileID: 8513604853403830161, guid: eedcd89b5427a574182fe0bc58f17770, type: 3}
 --- !u!1 &336811304
 GameObject:
   m_ObjectHideFlags: 0
