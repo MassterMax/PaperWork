@@ -21,7 +21,7 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         rectTransform = GetComponent<RectTransform>();
         startPos = rectTransform.anchoredPosition;
         image = GetComponent<Image>();
-        defaultSprite = image.sprite;
+        // defaultSprite = image.sprite;
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
@@ -42,7 +42,7 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public void OnEndDrag(PointerEventData eventData)
     {
         rectTransform.anchoredPosition = startPos;
-        image.sprite = defaultSprite;
+        // image.sprite = defaultSprite;
         canvasGroup.blocksRaycasts = true;
     }
 
