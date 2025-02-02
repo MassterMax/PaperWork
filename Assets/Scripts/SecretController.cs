@@ -121,9 +121,6 @@ public class SecretController : MonoBehaviour
         }
         else if (currentSecret == 6) { // flower on a table - now infinite loop (or maybe spawn specific paper)
             // no save, spawn specific paper sometimes
-            if ((paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 5 == 0) {
-                return 0;  // todo change
-            }
             return 0;
         }
         else
@@ -131,6 +128,10 @@ public class SecretController : MonoBehaviour
             Debug.LogWarning("Secrets ends: " + currentSecret.ToString());
             return 0;
         }
+    }
+
+    public bool CanSpawnPochita() {
+        return (currentSecret == 6) && (paperCount != secretNumberToItsAppearance[currentSecret - 1]) && (paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 5 == 0;
     }
 
     public int PotentialCurrentSecret() {

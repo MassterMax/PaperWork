@@ -10,6 +10,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     [SerializeField] List<GameObject> paperFigures;  // different figures
     [SerializeField] List<Sprite> defaultSprites;  // different drawings 
     [SerializeField] GameObject ashPrefab;  // ash for burnable paper
+    [SerializeField] GameObject pochitaAshPrefab;  // ash for pochita
+    [SerializeField] GameObject goldenPaperPrefab;
+    [SerializeField] GameObject endScreen;
+    [SerializeField] GameObject otherScreen;
 
     List<Color> paperColors = new List<Color>(new Color[] {
         new Color(130.0f/256, 130.0f/256, 210.0f/256),
@@ -39,6 +43,11 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
     // common state
     bool holdingSomething = false;
+    bool pochitaSpawned = false;
+
+    // vault
+    Vault vault;
+    bool gameFinished = false;
     void Start()
     {
         secretController = FindObjectOfType<SecretController>();
@@ -48,6 +57,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         paperSpawned = true;
         paperInstance = Instantiate(firstPaperPrefab, transform, false);
         flower = FindObjectOfType<Flower>();
+
+        vault = FindAnyObjectByType<Vault>();
+
+        endScreen.SetActive(false);
     }
 
     void SpawnPaper()
@@ -116,7 +129,14 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         int currentSecret = secretController.PotentialCurrentSecret();
         GameObject flowerPrefab = secretController.GetSecretPrefab(currentSecret - 1);
         paperInstance = Instantiate(flowerPrefab, transform, false);
+        paperSpawned = true;
+    }
 
+    void SpawnGoldenPaper()
+    {
+        paperInstance = Instantiate(goldenPaperPrefab, transform, false);
+        gameFinished = true;
+        paperSpawned = true;
     }
 
     public void OnPaperClick()
@@ -126,6 +146,13 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             // do not allow to change state if something in hands
             return;
         }
+        if (gameFinished)
+        {
+            // FINISH THE GAME
+            endScreen.SetActive(true);
+            otherScreen.SetActive(false);
+        }
+
         Debug.Log("OnPaperClick");
         if (!figureSpawned)
         {
@@ -151,22 +178,33 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
             Destroy(paperInstance);
             figureSpawned = true;
-            int choice = Random.Range(0, paperFigures.Count);
-            for (int attempt = 0; attempt < 3; ++attempt)
+
+            if (secretController.CanSpawnPochita())
             {
-                if (choice == prevFigureChoice)
-                {
-                    choice = Random.Range(0, paperFigures.Count);
-                }
-                else
-                {
-                    break;
-                }
+                paperInstance = Instantiate(paperFigures[0], position, Quaternion.identity, transform);
+                prevFigureChoice = 0;
+                pochitaSpawned = true;
             }
-            paperInstance = Instantiate(paperFigures[choice], position, Quaternion.identity, transform);
+            else
+            {
+                int choice = Random.Range(1, paperFigures.Count);
+                for (int attempt = 0; attempt < 3; ++attempt)
+                {
+                    if (choice == prevFigureChoice)
+                    {
+                        choice = Random.Range(1, paperFigures.Count);  // 0 stays for pochita
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                paperInstance = Instantiate(paperFigures[choice], position, Quaternion.identity, transform);
+                prevFigureChoice = choice;
+            }
+
             // apply color if need
             ApplyColorToAllChildren(paperInstance, figureColor);
-            prevFigureChoice = choice;
         }
         else
         {
@@ -175,6 +213,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             Destroy(paperInstance);
             figureSpawned = false;
             paperSpawned = false;
+            pochitaSpawned = false;
         }
     }
 
@@ -247,6 +286,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             {
                 holdingSomething = true;
             }
+            else if (eventData.pointerDrag.CompareTag("GoldenPaper"))
+            {
+                holdingSomething = true;
+            }
         }
     }
 
@@ -272,6 +315,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
                 holdingSomething = false;
             }
             else if (eventData.pointerDrag.CompareTag("Flower"))
+            {
+                holdingSomething = false;
+            }
+            else if (eventData.pointerDrag.CompareTag("GoldenPaper"))
             {
                 holdingSomething = false;
             }
@@ -308,6 +355,17 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
                 ChangeCandleState(pointerDrag);
                 holdingSomething = false;
             }
+            else if (eventData.pointerDrag.CompareTag("GoldenPaper"))
+            {
+                if (!paperSpawned)
+                {
+                    // FINISH THE GAME, reject all controls
+                    SpawnGoldenPaper();
+                    eventData.pointerDrag.gameObject.SetActive(false);
+                    Debug.LogWarning("YOU WIN!");
+                }
+                holdingSomething = false;
+            }
         }
     }
 
@@ -324,7 +382,19 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         Vector3 position = paperInstance.transform.position;
         Destroy(paperInstance);
         figureSpawned = true;
-        paperInstance = Instantiate(ashPrefab, position, Quaternion.identity, transform);
+
+        // specific handle for pochita
+        if (pochitaSpawned)
+        {
+            paperInstance = Instantiate(pochitaAshPrefab, position, Quaternion.identity, transform);
+            vault.Reveal();
+        }
+        else
+        {
+            paperInstance = Instantiate(ashPrefab, position, Quaternion.identity, transform);
+        }
+
+        pochitaSpawned = false;
     }
 
     public void GrowFlowerRemoveAsh()

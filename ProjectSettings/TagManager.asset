@@ -10,6 +10,7 @@ TagManager:
   - Candle
   - FireInstance
   - Flower
+  - GoldenPaper
   layers:
   - Default
   - TransparentFX

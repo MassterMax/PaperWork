@@ -18,22 +18,41 @@ public class CandleRevealSecret : MonoBehaviour, IPointerEnterHandler, IPointerE
     PaperSpawner paperSpawner;
     private Color startColor;
 
+    // only for pochita
+    [SerializeField] List<Image> revealedParts;
+    List<Color> startColors = new List<Color>();
+
     bool revealed = false;
     void Start()
     {
-        if (!burning) {
-            Color c = revealedPart.color;
-            c.a = 0f;
-            revealedPart.color = c;
-            endColor = new Color(1, 0.7f, 0, 0.5f);
-        } else {
+        if (revealedParts.Count > 0)
+        {
+            foreach (Image image in revealedParts)
+            {
+                startColors.Add(image.color);
+            }
             endColor = new Color(1, 0.7f, 0, 1f);
-            startColor = revealedPart.color;
+        }
+        else
+        {
+            if (!burning)
+            {
+                Color c = revealedPart.color;
+                c.a = 0f;
+                revealedPart.color = c;
+                endColor = new Color(1, 0.7f, 0, 0.5f);
+            }
+            else
+            {
+                endColor = new Color(1, 0.7f, 0, 1f);
+                startColor = revealedPart.color;
+            }
         }
         paperSpawner = FindObjectOfType<PaperSpawner>();
     }
-    
-    public Color GetColor() {
+
+    public Color GetColor()
+    {
         return revealedPart.color;
     }
 
@@ -47,27 +66,44 @@ public class CandleRevealSecret : MonoBehaviour, IPointerEnterHandler, IPointerE
             {
                 progress = 1f;
             }
-            if (progress >= 0.40f && !revealed) {
+            if (progress >= 0.40f && !revealed)
+            {
                 revealed = true;
-                if (!burning) {
+                if (!burning)
+                {
                     // end of revealing
                     paperSpawner.RevealSecret(secretNum);
                 }
             }
 
-            if (!burning) {
+            if (!burning)
+            {
                 revealedPart.color = endColor * progress;
-            } else {
-                Color newColor = endColor * progress + startColor * (1 - progress);
-                newColor.a = 1f;
-                revealedPart.color = newColor;
             }
-        } else if (revealing && progress >= 1f && burning) {
+            else
+            {
+                if (revealedParts.Count > 0)
+                {
+                    for (int i = 0; i < revealedParts.Count; ++i) {
+                        Color newColor = endColor * progress + startColors[i] * (1 - progress);
+                        newColor.a = 1f;
+                        revealedParts[i].color = newColor;
+                    }
+                }
+                else
+                {
+                    Color newColor = endColor * progress + startColor * (1 - progress);
+                    newColor.a = 1f;
+                    revealedPart.color = newColor;
+                }
+            }
+        }
+        else if (revealing && progress >= 1f && burning)
+        {
             burningProgress += 5 * step * Time.deltaTime;
             if (burningProgress >= 1)
             {
                 burningProgress = 1f;
-                // TODO burn it
                 paperSpawner.BurnCurrentPaper();
             }
         }
