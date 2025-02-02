@@ -96,7 +96,6 @@ public class DragDropPaper : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
         Debug.Log("OnPointerDown");
-
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             paperSpawner.OnPaperClick();

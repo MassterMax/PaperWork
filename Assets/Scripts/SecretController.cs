@@ -17,6 +17,9 @@ public class SecretController : MonoBehaviour
     void Start()
     {
         // paperSpawner = FindObjectOfType<PaperSpawner>();
+        // DEBUG ONLY!
+        currentSecret = 5;
+        secretNumberToItsAppearance[4] = 1;
     }
 
     // Update is called once per frame
@@ -113,6 +116,13 @@ public class SecretController : MonoBehaviour
             // secret number 5 - fertilizer
             if ((paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 15 == 8) {
                 return 5;
+            }
+            return 0;
+        }
+        else if (currentSecret == 6) { // flower on a table - now infinite loop (or maybe spawn specific paper)
+            // no save, spawn specific paper sometimes
+            if ((paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 5 == 0) {
+                return 0;  // todo change
             }
             return 0;
         }

@@ -9,6 +9,7 @@ TagManager:
   - uvInstance
   - Candle
   - FireInstance
+  - Flower
   layers:
   - Default
   - TransparentFX

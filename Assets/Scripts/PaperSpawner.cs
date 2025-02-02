@@ -34,6 +34,11 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     bool candleIsActive = false;
     CandleCircleScript candleCircleScript;
 
+    // flower state
+    Flower flower;
+
+    // common state
+    bool holdingSomething = false;
     void Start()
     {
         secretController = FindObjectOfType<SecretController>();
@@ -42,6 +47,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         secretController.IncreasePaperCount();
         paperSpawned = true;
         paperInstance = Instantiate(firstPaperPrefab, transform, false);
+        flower = FindObjectOfType<Flower>();
     }
 
     void SpawnPaper()
@@ -105,29 +111,21 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         }
     }
 
-    public void OnDrop(PointerEventData eventData)
+    void SpawnFlowerPaper()
     {
-        Debug.Log("PaperSpawner - OnDrop");
-        GameObject pointerDrag = eventData.pointerDrag;
-        if (pointerDrag != null)
-        {
-            if (pointerDrag.CompareTag("PaperStack") && !paperSpawned)
-            {
-                SpawnPaper();
-            }
-            else if (pointerDrag.CompareTag("Lamp"))
-            {
-                ChangeLampState(pointerDrag);
-            }
-            else if (eventData.pointerDrag.CompareTag("Candle"))
-            {
-                ChangeCandleState(pointerDrag);
-            }
-        }
+        int currentSecret = secretController.PotentialCurrentSecret();
+        GameObject flowerPrefab = secretController.GetSecretPrefab(currentSecret - 1);
+        paperInstance = Instantiate(flowerPrefab, transform, false);
+
     }
 
     public void OnPaperClick()
     {
+        if (holdingSomething)
+        {
+            // do not allow to change state if something in hands
+            return;
+        }
         Debug.Log("OnPaperClick");
         if (!figureSpawned)
         {
@@ -144,7 +142,9 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
                 // extract color
                 figureColor = paperInstance.GetComponent<CandleRevealSecret>().GetColor();
                 figureColor.a = 1;
-            } else {
+            }
+            else
+            {
                 // paper with defined color
                 figureColor = paperInstance.GetComponent<Image>().color;
             }
@@ -232,10 +232,20 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             if (eventData.pointerDrag.CompareTag("Lamp"))
             {
                 ChangeLampState(eventData.pointerDrag);
+                holdingSomething = true;
             }
             else if (eventData.pointerDrag.CompareTag("Candle"))
             {
                 ChangeCandleState(eventData.pointerDrag);
+                holdingSomething = true;
+            }
+            else if (eventData.pointerDrag.CompareTag("PaperStack"))
+            {
+                holdingSomething = true;
+            }
+            else if (eventData.pointerDrag.CompareTag("Flower"))
+            {
+                holdingSomething = true;
             }
         }
     }
@@ -250,10 +260,53 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             if (eventData.pointerDrag.CompareTag("Lamp"))
             {
                 ChangeLampState(eventData.pointerDrag);
+                holdingSomething = false;
             }
             else if (eventData.pointerDrag.CompareTag("Candle"))
             {
                 ChangeCandleState(eventData.pointerDrag);
+                holdingSomething = false;
+            }
+            else if (eventData.pointerDrag.CompareTag("PaperStack"))
+            {
+                holdingSomething = false;
+            }
+            else if (eventData.pointerDrag.CompareTag("Flower"))
+            {
+                holdingSomething = false;
+            }
+        }
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        Debug.Log("PaperSpawner - OnDrop");
+        GameObject pointerDrag = eventData.pointerDrag;
+        if (pointerDrag != null)
+        {
+            if (pointerDrag.CompareTag("PaperStack"))
+            {
+                if (!paperSpawned) SpawnPaper();
+                holdingSomething = false;
+            }
+            else if (pointerDrag.CompareTag("Flower"))
+            {
+                if (!paperSpawned && flower.IsGrown())
+                {
+                    RevealSecret(5);
+                    SpawnFlowerPaper();
+                }
+                holdingSomething = false;
+            }
+            else if (pointerDrag.CompareTag("Lamp"))
+            {
+                ChangeLampState(pointerDrag);
+                holdingSomething = false;
+            }
+            else if (eventData.pointerDrag.CompareTag("Candle"))
+            {
+                ChangeCandleState(pointerDrag);
+                holdingSomething = false;
             }
         }
     }
@@ -263,7 +316,8 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         secretController.RevealSecret(secretNum);
     }
 
-    public void BurnCurrentPaper() {
+    public void BurnCurrentPaper()
+    {
         Debug.Log("burn current paper");
 
         // destroy sheet and create ash (ash is a fugure actually)
@@ -273,5 +327,12 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         paperInstance = Instantiate(ashPrefab, position, Quaternion.identity, transform);
     }
 
-    // todo paperSpawner.RevealSecret(5); when plant dragged to ash
+    public void GrowFlowerRemoveAsh()
+    {
+        Debug.Log("GrowFlowerRemoveAsh");
+        OnPaperClick();
+        // Destroy(paperInstance);
+        // figureSpawned = false;
+        // paperSpawned = false;
+    }
 }
