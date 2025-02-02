@@ -18,8 +18,8 @@ public class SecretController : MonoBehaviour
     {
         // paperSpawner = FindObjectOfType<PaperSpawner>();
         // DEBUG ONLY!
-        currentSecret = 5;
-        secretNumberToItsAppearance[4] = 1;
+        // currentSecret = 5;
+        // secretNumberToItsAppearance[4] = 1;
     }
 
     // Update is called once per frame
