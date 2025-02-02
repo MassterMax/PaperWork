@@ -9,6 +9,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     [SerializeField] GameObject firstPaperPrefab;  // first paper on the table
     [SerializeField] List<GameObject> paperFigures;  // different figures
     [SerializeField] List<Sprite> defaultSprites;  // different drawings 
+    [SerializeField] GameObject ashPrefab;  // ash for burnable paper
 
     List<Color> paperColors = new List<Color>(new Color[] {
         new Color(130.0f/256, 130.0f/256, 210.0f/256),
@@ -56,7 +57,8 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             paperInstance = Instantiate(paperPrefab, transform, false);
 
             // get current cycle state (3 means we can draw)
-            if (secretController.PotentialCurrentSecret() == 3 || secretController.PotentialCurrentSecret() == 4)
+            // if (secretController.PotentialCurrentSecret() == 3 || secretController.PotentialCurrentSecret() == 4)
+            if (secretController.PotentialCurrentSecret() >= 3)
             {
                 if (Random.Range(0f, 1f) >= 0.33f && defaultSprites.Count > 0)
                 {
@@ -66,7 +68,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             }
 
             // trying to color paper
-            if (secretController.PotentialCurrentSecret() == 4)
+            if (secretController.PotentialCurrentSecret() >= 4)
             {
                 Color paperColor;
                 if (secretNumber == -1)
@@ -260,4 +262,16 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     {
         secretController.RevealSecret(secretNum);
     }
+
+    public void BurnCurrentPaper() {
+        Debug.Log("burn current paper");
+
+        // destroy sheet and create ash (ash is a fugure actually)
+        Vector3 position = paperInstance.transform.position;
+        Destroy(paperInstance);
+        figureSpawned = true;
+        paperInstance = Instantiate(ashPrefab, position, Quaternion.identity, transform);
+    }
+
+    // todo paperSpawner.RevealSecret(5); when plant dragged to ash
 }

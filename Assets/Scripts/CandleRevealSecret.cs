@@ -7,20 +7,29 @@ using UnityEngine.EventSystems;
 public class CandleRevealSecret : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDropHandler
 {
     [SerializeField] Image revealedPart;
+    [SerializeField] bool burning = false;
+    [SerializeField] int secretNum;
     private bool revealing = false;
     private float progress = 0f;
-    private Color endColor = new Color(1, 0.7f, 0, 0.5f);
+    private float burningProgress = 0f;
+    private Color endColor;
     private float step = 0.25f; // per second
 
     PaperSpawner paperSpawner;
+    private Color startColor;
 
     bool revealed = false;
     void Start()
     {
-        Color c = revealedPart.color;
-        c.a = 0f;
-        revealedPart.color = c;
-
+        if (!burning) {
+            Color c = revealedPart.color;
+            c.a = 0f;
+            revealedPart.color = c;
+            endColor = new Color(1, 0.7f, 0, 0.5f);
+        } else {
+            endColor = new Color(1, 0.7f, 0, 1f);
+            startColor = revealedPart.color;
+        }
         paperSpawner = FindObjectOfType<PaperSpawner>();
     }
     
@@ -38,11 +47,29 @@ public class CandleRevealSecret : MonoBehaviour, IPointerEnterHandler, IPointerE
             {
                 progress = 1f;
             }
-            if (progress >= 0.33f && !revealed) {
+            if (progress >= 0.40f && !revealed) {
                 revealed = true;
-                paperSpawner.RevealSecret(3);
+                if (!burning) {
+                    // end of revealing
+                    paperSpawner.RevealSecret(secretNum);
+                }
             }
-            revealedPart.color = endColor * progress;
+
+            if (!burning) {
+                revealedPart.color = endColor * progress;
+            } else {
+                Color newColor = endColor * progress + startColor * (1 - progress);
+                newColor.a = 1f;
+                revealedPart.color = newColor;
+            }
+        } else if (revealing && progress >= 1f && burning) {
+            burningProgress += 5 * step * Time.deltaTime;
+            if (burningProgress >= 1)
+            {
+                burningProgress = 1f;
+                // TODO burn it
+                paperSpawner.BurnCurrentPaper();
+            }
         }
     }
 

@@ -101,6 +101,21 @@ public class SecretController : MonoBehaviour
             }
             return 0;
         }
+        else if (currentSecret == 5) { // officer quiz
+            // save prev secret - uv police
+            if ((paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 15 == 0) {
+                return 4;
+            }
+            // save prev secret - green light
+            if ((paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 15 == 2) {
+                return -1;
+            }
+            // secret number 5 - fertilizer
+            if ((paperCount - secretNumberToItsAppearance[currentSecret - 1]) % 15 == 8) {
+                return 5;
+            }
+            return 0;
+        }
         else
         {
             Debug.LogWarning("Secrets ends: " + currentSecret.ToString());

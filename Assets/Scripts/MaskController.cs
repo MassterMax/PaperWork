@@ -9,6 +9,7 @@ public class MaskController : MonoBehaviour
     void Start()
     {
         rectTransform = GetComponent<RectTransform>();
+        maskMaterial.SetVector("_CursorPos", new Vector4(-999, -999, 0, 0));
     }
 
     public void ChangeRadius(float value) {
