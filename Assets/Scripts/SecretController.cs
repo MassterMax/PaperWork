@@ -49,6 +49,7 @@ public class SecretController : MonoBehaviour
     }
 
     // 0 stays for neutral paper
+    // -1 for green paper
     public int CurrentSecret()
     {
         if (currentSecret == 1)
@@ -82,6 +83,21 @@ public class SecretController : MonoBehaviour
             // secret number 3
             if ((paperCount - secretNumberToItsAppearance[2]) % 6 == 0) {
                 return 3;
+            }
+            return 0;
+        }
+        else if (currentSecret == 4) { // officer quiz
+            // save prev secret
+            if ((paperCount - secretNumberToItsAppearance[3]) % 18 == 0) {
+                return 3;
+            }
+            // green light
+            if ((paperCount - secretNumberToItsAppearance[3]) % 18 == 3) {
+                return -1;
+            }
+            // secret number 4
+            if ((paperCount - secretNumberToItsAppearance[3]) % 18 == 16) {
+                return 4;
             }
             return 0;
         }

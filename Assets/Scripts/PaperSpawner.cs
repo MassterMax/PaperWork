@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,6 +9,12 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     [SerializeField] GameObject firstPaperPrefab;  // first paper on the table
     [SerializeField] List<GameObject> paperFigures;  // different figures
     [SerializeField] List<Sprite> defaultSprites;  // different drawings 
+
+    List<Color> paperColors = new List<Color>(new Color[] {
+        new Color(130.0f/256, 130.0f/256, 210.0f/256),
+        new Color(210.0f/256, 92.0f/256, 92.0f/256),
+        new Color(180.0f/256, 84.0f/256, 180.0f/256),
+    });
 
     SecretController secretController;
 
@@ -44,17 +48,41 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         secretController.IncreasePaperCount();
         paperSpawned = true;
         int secretNumber = secretController.CurrentSecret();
-        if (secretNumber == 0)
+
+        // the number we working with now (0 = neutral)
+        if (secretNumber <= 0)
         {
             // spawn default paper
             paperInstance = Instantiate(paperPrefab, transform, false);
-            if (secretController.PotentialCurrentSecret() == 3)
+
+            // get current cycle state (3 means we can draw)
+            if (secretController.PotentialCurrentSecret() == 3 || secretController.PotentialCurrentSecret() == 4)
             {
                 if (Random.Range(0f, 1f) >= 0.33f && defaultSprites.Count > 0)
                 {
                     int index = Random.Range(0, defaultSprites.Count);
                     paperInstance.GetComponent<Image>().sprite = defaultSprites[index];
                 }
+            }
+
+            // trying to color paper
+            if (secretController.PotentialCurrentSecret() == 4)
+            {
+                Color paperColor;
+                if (secretNumber == -1)
+                {
+                    paperColor = Color.green;
+                }
+                else if (Random.Range(0f, 1f) >= 0.66f)
+                {
+                    int index = Random.Range(0, paperColors.Count);
+                    paperColor = paperColors[index];
+                }
+                else
+                {
+                    paperColor = Color.white;
+                }
+                paperInstance.GetComponent<Image>().color = paperColor;
             }
         }
         else
@@ -114,6 +142,9 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
                 // extract color
                 figureColor = paperInstance.GetComponent<CandleRevealSecret>().GetColor();
                 figureColor.a = 1;
+            } else {
+                // paper with defined color
+                figureColor = paperInstance.GetComponent<Image>().color;
             }
 
             Destroy(paperInstance);
@@ -145,7 +176,8 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         }
     }
 
-    private void ApplyColorToAllChildren(GameObject gameObject, Color color) {
+    private void ApplyColorToAllChildren(GameObject gameObject, Color color)
+    {
         Image[] images = gameObject.GetComponentsInChildren<Image>();
         foreach (Image img in images)
         {
@@ -162,10 +194,14 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         {
             uvInstance.SetActive(lampIsActive);
 
-            if (lampIsActive == true && secretController.CurrentSecret() == 2)
+            if (lampIsActive)
             {
-                // if player use lamp - we reveal secret
-                secretController.RevealSecret(2);
+                int currentSecret = secretController.CurrentSecret();
+                if (currentSecret == 2 || currentSecret == 4)
+                {
+                    // if player use lamp - we reveal secret
+                    secretController.RevealSecret(currentSecret);
+                }
             }
         }
         if (circleLampScript is null)
