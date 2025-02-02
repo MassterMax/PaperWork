@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] GameObject paperPrefab;  // default paper prefab
+    [SerializeField] GameObject firstPaperPrefab;  // first paper on the table
     [SerializeField] List<GameObject> paperFigures;  // different figures
-
-    [SerializeField] List<GameObject> paperSecrets;  // different secrets
+    [SerializeField] List<Sprite> defaultSprites;  // different drawings 
 
     SecretController secretController;
 
@@ -17,7 +18,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     bool paperSpawned = false;
     bool paperEmpty = true;
     GameObject paperInstance;
-    GameObject secretInstance;
+    GameObject uvInstance;
 
     // lamp state
     bool lampIsActive = false;
@@ -25,19 +26,39 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     
     void Start() {
         secretController = FindObjectOfType<SecretController>();
+
+        // in start we spawn first-firt paper
+        secretController.IncreasePaperCount();
+        paperSpawned = true;
+        paperInstance = Instantiate(firstPaperPrefab, transform, false);
     }
 
     void SpawnPaper()
     {
         secretController.IncreasePaperCount();
         paperSpawned = true;
-        paperInstance = Instantiate(paperPrefab, transform, false);
+        int secretNumber = secretController.CurrentSecret();
+        if (secretNumber == 0) {
+            // spawn default paper
+            paperInstance = Instantiate(paperPrefab, transform, false);
+            if (secretController.PotentialCurrentSecret() == 3) {
+                if (Random.Range(0f, 1f) >= 0.5f && defaultSprites.Count > 0) {
+                    int index = Random.Range(0, defaultSprites.Count);
+                    paperInstance.GetComponent<Image>().sprite = defaultSprites[index];
+                }
+            }
+        } else {
+            // spawn secret prefab
+            GameObject secretPrefab = secretController.GetSecretPrefab(secretNumber - 1);
+            paperInstance = Instantiate(secretPrefab, transform, false);
 
-        if (paperSecrets.Count > 0 && secretController.CanSpawnFirstSecret())
-        {
-            int choice = Random.Range(0, paperSecrets.Count);
-            secretInstance = Instantiate(paperSecrets[choice], paperInstance.transform.position, Quaternion.identity, paperInstance.transform);
-            secretInstance.SetActive(false);
+            if (paperInstance.CompareTag("uvInstance")) {
+                uvInstance = paperInstance.transform.GetChild(0).gameObject;
+                uvInstance.SetActive(false);
+            }
+            if (secretNumber == 1) {
+                secretController.RevealSecret(1);
+            }
         }
     }
 
@@ -84,9 +105,14 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     private void ChangeLampState(GameObject lamp)
     {
         lampIsActive = !lampIsActive;
-        if (secretInstance != null)
+        if (uvInstance != null)
         {
-            secretInstance.SetActive(lampIsActive);
+            uvInstance.SetActive(lampIsActive);
+
+            if (lampIsActive == true && secretController.CurrentSecret() == 2) {
+                // if player use lamp - we reveal secret
+                secretController.RevealSecret(2);
+            }
         }
         if (circleLampScript is null)
         {
