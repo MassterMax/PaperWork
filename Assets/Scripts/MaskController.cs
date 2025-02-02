@@ -3,7 +3,7 @@ using UnityEngine;
 public class MaskController : MonoBehaviour
 {
     public Material maskMaterial;
-    public float radius = 0.2f;
+    public float radius = 0.1f;
     RectTransform rectTransform;
 
     void Start()

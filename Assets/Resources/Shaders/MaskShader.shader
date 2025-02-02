@@ -3,7 +3,7 @@ Shader "Unlit/MaskShader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _CursorPos ("Cursor Position", Vector) = (0.5, 0.5,0,0)
+        _CursorPos ("Cursor Position", Vector) = (-999, 0,0,0)
         _Radius ("Mask Radius", Float) = 0.1
     }
     SubShader
@@ -44,8 +44,13 @@ Shader "Unlit/MaskShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv;
+                if (_CursorPos.x == -999) {
+                    fixed4 col = tex2D(_MainTex, i.uv);
+                    col.a = 0;
+                    return col;
+                }
 
+                float2 uv = i.uv;
                 // Picture Ratio
                 float aspectRatio = _MainTex_TexelSize.z / _MainTex_TexelSize.w;
 
