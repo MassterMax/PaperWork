@@ -16,7 +16,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
     // paper state
     bool paperSpawned = false;
-    bool paperEmpty = true;
+    bool figureSpawned = false;
     GameObject paperInstance;
     GameObject uvInstance;
     int prevFigureChoice = -1;
@@ -77,7 +77,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
     public void OnDrop(PointerEventData eventData)
     {
-        Debug.Log("OnDrop");
+        Debug.Log("PaperSpawner - OnDrop");
         GameObject pointerDrag = eventData.pointerDrag;
         if (pointerDrag != null)
         {
@@ -99,14 +99,25 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     public void OnPaperClick()
     {
         Debug.Log("OnPaperClick");
-        if (paperEmpty)
+        if (!figureSpawned)
         {
-            Debug.Log("paperEmpty=true");
+            Debug.Log("figureSpawned=true");
 
             // destroy sheet and create figure
             Vector3 position = paperInstance.transform.position;
+
+            // check if figure should be colored
+            // TODO papers with default colors
+            Color figureColor = Color.white;
+            if (paperInstance.CompareTag("FireInstance"))
+            {
+                // extract color
+                figureColor = paperInstance.GetComponent<CandleRevealSecret>().GetColor();
+                figureColor.a = 1;
+            }
+
             Destroy(paperInstance);
-            paperEmpty = false;
+            figureSpawned = true;
             int choice = Random.Range(0, paperFigures.Count);
             for (int attempt = 0; attempt < 3; ++attempt)
             {
@@ -120,20 +131,33 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
                 }
             }
             paperInstance = Instantiate(paperFigures[choice], position, Quaternion.identity, transform);
+            // apply color if need
+            ApplyColorToAllChildren(paperInstance, figureColor);
             prevFigureChoice = choice;
         }
         else
         {
-            Debug.Log("paperEmpty=false");
+            // destroy figure
+            Debug.Log("figureSpawned=false");
             Destroy(paperInstance);
-            paperEmpty = true;
+            figureSpawned = false;
             paperSpawned = false;
+        }
+    }
+
+    private void ApplyColorToAllChildren(GameObject gameObject, Color color) {
+        Image[] images = gameObject.GetComponentsInChildren<Image>();
+        foreach (Image img in images)
+        {
+            Debug.Log("Found Image component on: " + img.gameObject.name);
+            img.color = (img.color + color) / 2;
         }
     }
 
     private void ChangeLampState(GameObject lamp)
     {
         lampIsActive = !lampIsActive;
+        Debug.Log("ChangeLampState, now: " + lampIsActive.ToString());
         if (uvInstance != null)
         {
             uvInstance.SetActive(lampIsActive);
@@ -154,16 +178,7 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     private void ChangeCandleState(GameObject candle)
     {
         candleIsActive = !candleIsActive;
-        // if (uvInstance != null)
-        // {
-        //     uvInstance.SetActive(lampIsActive);
-
-        //     if (lampIsActive == true && secretController.CurrentSecret() == 2)
-        //     {
-        //         // if player use lamp - we reveal secret
-        //         secretController.RevealSecret(2);
-        //     }
-        // }
+        Debug.Log("ChangeCandleState, now: " + candleIsActive.ToString());
         if (candleCircleScript is null)
         {
             candleCircleScript = candle.GetComponent<CandleCircleScript>();
@@ -203,5 +218,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
                 ChangeCandleState(eventData.pointerDrag);
             }
         }
+    }
+
+    public void RevealSecret(int secretNum)
+    {
+        secretController.RevealSecret(secretNum);
     }
 }

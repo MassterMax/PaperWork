@@ -1892,7 +1892,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0, y: 14.715}
+  m_AnchoredPosition: {x: 0, y: 14.715}
   m_SizeDelta: {x: 4, y: 13.25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &841791627
@@ -2812,7 +2812,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1456641496
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3160,7 +3160,7 @@ GameObject:
   - component: {fileID: 1664465701}
   - component: {fileID: 1664465700}
   m_Layer: 5
-  m_Name: VerstakLegs (1)
+  m_Name: VerstakLeg2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4677,7 +4677,7 @@ GameObject:
   - component: {fileID: 2130491702}
   - component: {fileID: 2130491701}
   m_Layer: 5
-  m_Name: VerstakLegs
+  m_Name: VerstakLeg1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

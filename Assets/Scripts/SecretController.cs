@@ -74,7 +74,7 @@ public class SecretController : MonoBehaviour
             return 0;
         }
         else if (currentSecret == 3)
-        {  // paper u should heat (not implemented yet)
+        {  // paper u should heat
             // save from random revealing (continue to spawn uv secret)
             if ((paperCount - secretNumberToItsAppearance[2]) % 7 == 0) {
                 return 2;
