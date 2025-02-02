@@ -7,6 +7,7 @@ TagManager:
   - PaperStack
   - Lamp
   - uvInstance
+  - Candle
   layers:
   - Default
   - TransparentFX

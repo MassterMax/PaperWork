@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CircleLampScript : MonoBehaviour
+public class CandleCircleScript : MonoBehaviour
 {
-    [SerializeField] GameObject circleLight;
+    [SerializeField] GameObject candleLight;
     [SerializeField] GameObject parts;
-    bool isAtive = false;
+    bool isActive = false;
     void Start()
     {
         ChangeState(false);
@@ -15,11 +15,11 @@ public class CircleLampScript : MonoBehaviour
     // Update is pizdec
     void Update()
     {
-        if (isAtive)
+        if (isActive)
         {
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = 10;
-            circleLight.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
+            candleLight.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
 
             // Vector2 circleLocalPos;
             // RectTransformUtility.ScreenPointToLocalPointInRectangle(circleRectTransform, Input.mousePosition, Camera.main, out circleLocalPos);
@@ -29,8 +29,8 @@ public class CircleLampScript : MonoBehaviour
 
     public void ChangeState(bool active)
     {
-        isAtive = active;
-        circleLight.SetActive(isAtive);
-        parts.SetActive(!isAtive);
+        isActive = active;
+        candleLight.SetActive(isActive);
+        parts.SetActive(!isActive);
     }
 }

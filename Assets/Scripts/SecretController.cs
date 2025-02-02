@@ -62,12 +62,12 @@ public class SecretController : MonoBehaviour
         else if (currentSecret == 2)
         { // first paper wuth uv light
             // save from random revealing
-            if ((paperCount - secretNumberToItsAppearance[1]) % 8 == 0)
+            if ((paperCount - secretNumberToItsAppearance[1]) % 7 == 0)
             {
                 return 1;
             }
             // secret number 2
-            if ((paperCount - secretNumberToItsAppearance[1]) % 6 == 0)
+            if ((paperCount - secretNumberToItsAppearance[1]) % 4 == 0)
             {
                 return 2;
             }
@@ -80,7 +80,7 @@ public class SecretController : MonoBehaviour
                 return 2;
             }
             // secret number 3
-            if ((paperCount - secretNumberToItsAppearance[2]) % 7 == 3) {
+            if ((paperCount - secretNumberToItsAppearance[2]) % 6 == 0) {
                 return 3;
             }
             return 0;

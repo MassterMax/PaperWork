@@ -19,12 +19,18 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     bool paperEmpty = true;
     GameObject paperInstance;
     GameObject uvInstance;
+    int prevFigureChoice = -1;
 
     // lamp state
     bool lampIsActive = false;
     CircleLampScript circleLampScript;
-    
-    void Start() {
+
+    // candle state
+    bool candleIsActive = false;
+    CandleCircleScript candleCircleScript;
+
+    void Start()
+    {
         secretController = FindObjectOfType<SecretController>();
 
         // in start we spawn first-firt paper
@@ -38,25 +44,32 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         secretController.IncreasePaperCount();
         paperSpawned = true;
         int secretNumber = secretController.CurrentSecret();
-        if (secretNumber == 0) {
+        if (secretNumber == 0)
+        {
             // spawn default paper
             paperInstance = Instantiate(paperPrefab, transform, false);
-            if (secretController.PotentialCurrentSecret() == 3) {
-                if (Random.Range(0f, 1f) >= 0.5f && defaultSprites.Count > 0) {
+            if (secretController.PotentialCurrentSecret() == 3)
+            {
+                if (Random.Range(0f, 1f) >= 0.33f && defaultSprites.Count > 0)
+                {
                     int index = Random.Range(0, defaultSprites.Count);
                     paperInstance.GetComponent<Image>().sprite = defaultSprites[index];
                 }
             }
-        } else {
+        }
+        else
+        {
             // spawn secret prefab
             GameObject secretPrefab = secretController.GetSecretPrefab(secretNumber - 1);
             paperInstance = Instantiate(secretPrefab, transform, false);
 
-            if (paperInstance.CompareTag("uvInstance")) {
+            if (paperInstance.CompareTag("uvInstance"))
+            {
                 uvInstance = paperInstance.transform.GetChild(0).gameObject;
                 uvInstance.SetActive(false);
             }
-            if (secretNumber == 1) {
+            if (secretNumber == 1)
+            {
                 secretController.RevealSecret(1);
             }
         }
@@ -76,6 +89,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             {
                 ChangeLampState(pointerDrag);
             }
+            else if (eventData.pointerDrag.CompareTag("Candle"))
+            {
+                ChangeCandleState(pointerDrag);
+            }
         }
     }
 
@@ -91,7 +108,19 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             Destroy(paperInstance);
             paperEmpty = false;
             int choice = Random.Range(0, paperFigures.Count);
+            for (int attempt = 0; attempt < 3; ++attempt)
+            {
+                if (choice == prevFigureChoice)
+                {
+                    choice = Random.Range(0, paperFigures.Count);
+                }
+                else
+                {
+                    break;
+                }
+            }
             paperInstance = Instantiate(paperFigures[choice], position, Quaternion.identity, transform);
+            prevFigureChoice = choice;
         }
         else
         {
@@ -109,7 +138,8 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         {
             uvInstance.SetActive(lampIsActive);
 
-            if (lampIsActive == true && secretController.CurrentSecret() == 2) {
+            if (lampIsActive == true && secretController.CurrentSecret() == 2)
+            {
                 // if player use lamp - we reveal secret
                 secretController.RevealSecret(2);
             }
@@ -121,6 +151,26 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         circleLampScript.ChangeState(lampIsActive);
     }
 
+    private void ChangeCandleState(GameObject candle)
+    {
+        candleIsActive = !candleIsActive;
+        // if (uvInstance != null)
+        // {
+        //     uvInstance.SetActive(lampIsActive);
+
+        //     if (lampIsActive == true && secretController.CurrentSecret() == 2)
+        //     {
+        //         // if player use lamp - we reveal secret
+        //         secretController.RevealSecret(2);
+        //     }
+        // }
+        if (candleCircleScript is null)
+        {
+            candleCircleScript = candle.GetComponent<CandleCircleScript>();
+        }
+        candleCircleScript.ChangeState(candleIsActive);
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (eventData.pointerDrag != null)
@@ -129,6 +179,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             if (eventData.pointerDrag.CompareTag("Lamp"))
             {
                 ChangeLampState(eventData.pointerDrag);
+            }
+            else if (eventData.pointerDrag.CompareTag("Candle"))
+            {
+                ChangeCandleState(eventData.pointerDrag);
             }
         }
     }
@@ -143,6 +197,10 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             if (eventData.pointerDrag.CompareTag("Lamp"))
             {
                 ChangeLampState(eventData.pointerDrag);
+            }
+            else if (eventData.pointerDrag.CompareTag("Candle"))
+            {
+                ChangeCandleState(eventData.pointerDrag);
             }
         }
     }
