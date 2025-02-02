@@ -52,7 +52,7 @@ public class SecretController : MonoBehaviour
     public int CurrentSecret()
     {
         if (currentSecret == 1)
-        { // paper with first text
+        { // paper with first text about ultraviolet
             if (paperCount >= 5 && paperCount % 6 == 5)
             {
                 return 1;
@@ -62,12 +62,12 @@ public class SecretController : MonoBehaviour
         else if (currentSecret == 2)
         { // first paper wuth uv light
             // save from random revealing
-            if (paperCount % 6 == 5)
+            if ((paperCount - secretNumberToItsAppearance[1]) % 8 == 0)
             {
                 return 1;
             }
             // secret number 2
-            if (paperCount % 6 == 2)
+            if ((paperCount - secretNumberToItsAppearance[1]) % 6 == 0)
             {
                 return 2;
             }
