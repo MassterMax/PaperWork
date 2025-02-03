@@ -144,6 +144,12 @@ public class CandleRevealSecret : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public void OnDrop(PointerEventData eventData)
     {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            // skip right button drop
+            return;
+        }
+
         if (eventData.pointerDrag != null)
         {
             if (eventData.pointerDrag.CompareTag("Candle"))

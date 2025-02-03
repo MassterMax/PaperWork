@@ -227,9 +227,9 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         }
     }
 
-    private void ChangeLampState(GameObject lamp)
+    private void ChangeLampState(GameObject lamp, bool state)
     {
-        lampIsActive = !lampIsActive;
+        lampIsActive = state;
         Debug.Log("ChangeLampState, now: " + lampIsActive.ToString());
         if (uvInstance != null)
         {
@@ -252,9 +252,9 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
         circleLampScript.ChangeState(lampIsActive);
     }
 
-    private void ChangeCandleState(GameObject candle)
+    private void ChangeCandleState(GameObject candle, bool state)
     {
-        candleIsActive = !candleIsActive;
+        candleIsActive = state;
         Debug.Log("ChangeCandleState, now: " + candleIsActive.ToString());
         if (candleCircleScript is null)
         {
@@ -270,12 +270,12 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             Debug.Log("Cursor entered table with object: " + eventData.pointerDrag.name);
             if (eventData.pointerDrag.CompareTag("Lamp"))
             {
-                ChangeLampState(eventData.pointerDrag);
+                ChangeLampState(eventData.pointerDrag, true);
                 holdingSomething = true;
             }
             else if (eventData.pointerDrag.CompareTag("Candle"))
             {
-                ChangeCandleState(eventData.pointerDrag);
+                ChangeCandleState(eventData.pointerDrag, true);
                 holdingSomething = true;
             }
             else if (eventData.pointerDrag.CompareTag("PaperStack"))
@@ -302,12 +302,12 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
             if (eventData.pointerDrag.CompareTag("Lamp"))
             {
-                ChangeLampState(eventData.pointerDrag);
+                ChangeLampState(eventData.pointerDrag, false);
                 holdingSomething = false;
             }
             else if (eventData.pointerDrag.CompareTag("Candle"))
             {
-                ChangeCandleState(eventData.pointerDrag);
+                ChangeCandleState(eventData.pointerDrag, false);
                 holdingSomething = false;
             }
             else if (eventData.pointerDrag.CompareTag("PaperStack"))
@@ -327,7 +327,13 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
     public void OnDrop(PointerEventData eventData)
     {
-        Debug.Log("PaperSpawner - OnDrop");
+        Debug.Log("PaperSpawner - OnDrop, button= " + eventData.button.ToString());
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            // skip right button drop
+            return;
+        }
+
         GameObject pointerDrag = eventData.pointerDrag;
         if (pointerDrag != null)
         {
@@ -347,12 +353,12 @@ public class PaperSpawner : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             }
             else if (pointerDrag.CompareTag("Lamp"))
             {
-                ChangeLampState(pointerDrag);
+                ChangeLampState(pointerDrag, false);
                 holdingSomething = false;
             }
             else if (eventData.pointerDrag.CompareTag("Candle"))
             {
-                ChangeCandleState(pointerDrag);
+                ChangeCandleState(pointerDrag, false);
                 holdingSomething = false;
             }
             else if (eventData.pointerDrag.CompareTag("GoldenPaper"))

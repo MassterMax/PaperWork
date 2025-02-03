@@ -16,6 +16,12 @@ public class AshScript : MonoBehaviour, IDropHandler
         // order matters. first drop then grow flower
         paperSpawner.OnDrop(eventData);
 
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            // skip right button drop
+            return;
+        }
+
         if (eventData.pointerDrag != null)
         {
             if (eventData.pointerDrag.CompareTag("Flower"))
